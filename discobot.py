@@ -32,18 +32,20 @@ def send_discord_message(content, image=None):
                 response = requests.post(
                     webhook_url,
                     data={"content": content},
-                    files={"file": f}
+                    files={"file": f},
+                    timeout=10
                 )
         else:
-            response = requests.post(webhook_url, json=data)
+            response = requests.post(webhook_url, json=data, timeout=10)
 
         if response.status_code in [200, 204]:
             logger.info("Discord message sent successfully")
-            os.remove(image) if image else None
+            if image:
+                os.remove(image)
         else:
-            logger.error(f"Failed to send message: {response.status_code} - {response.text}")
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
+            logger.error("Failed to send message: %d - %s", response.status_code, response.text)
+    except RuntimeError as e:
+        logger.error("An error occurred: %s", e)
 
 
 async def read_channel(server_name, channel_name, token=os.environ.get("DISCORD_BOT_TOKEN"), limit=100):
@@ -59,18 +61,18 @@ async def read_channel(server_name, channel_name, token=os.environ.get("DISCORD_
 
     @client.event
     async def on_ready():
-        logger.info(f"Logged in as {client.user}")
+        logger.info("Logged in as %s", client.user)
 
         # Get the guild and channel
         guild = discord.utils.get(client.guilds, name=server_name)
         channel = discord.utils.get(guild.text_channels, name=channel_name)
 
-        logger.info(f"Fetching messages from channel: {channel.name}")
+        logger.info("Fetching messages from channel: %s", channel.name)
 
         async for message in channel.history(limit=limit):
             result.append((message.author, message.content))
 
-        logger.info(f"Fetched {len(result)} messages.")
+        logger.info("Fetched %d messages.", len(result))
         await client.close()  # Stop the bot after fetching messages
 
     await client.start(token)

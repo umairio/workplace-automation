@@ -28,4 +28,4 @@ app.conf.enable_utc = False
 
 @app.task
 def do_checkin():
-    asyncio.run(main(dict()))
+    asyncio.run(main({}))

@@ -47,17 +47,17 @@ async def main(result):
     logger.info(f"Leave user IDs: {leave_user_ids}")
     if not result:
         for user in data:
-            id, creds = next(iter(user.items()))
-            result[id] = "Leave" if user in leave_user_ids else CheckInAPI(*creds).checkin()
+            userid, creds = next(iter(user.items()))
+            result[userid] = "Leave" if user in leave_user_ids else CheckInAPI(*creds).checkin()
 
     MAX_RETRIES = 3
     retries = 0
     while "Failed" in result.values() and retries < MAX_RETRIES:
         logger.info(f"Retrying failed jobs (Attempt {retries + 1}/{MAX_RETRIES})")
         for user in data:
-            id, creds = next(iter(user.items()))
-            if result[id] == "Failed":
-                result[id] = CheckInAPI(*creds).checkin()
+            userid, creds = next(iter(user.items()))
+            if result[userid] == "Failed":
+                result[userid] = CheckInAPI(*creds).checkin()
         retries += 1
 
     if "Failed" in result.values():
@@ -67,4 +67,4 @@ async def main(result):
     logger.info(f"All jobs completed successfully {json.dumps(result, indent=4)}")
 
 if __name__ == "__main__":
-    asyncio.run(main(dict()))
+    asyncio.run(main({}))

@@ -7,12 +7,10 @@ class CheckInAPI:
     def __init__(self, username: str, password: str):
         self.username = username
         self.password = password
-        self.login_url = "https://linkedmatrix.resourceinn.com/api/v1/oauth/webLogin"
-        self.checkin_url = "https://linkedmatrix.resourceinn.com/api/v1/directives/markAttendance"
-        self.access_token = str()
-        self.employment_id = str()
-        self.cookies = dict()
-        self.id = int()
+        self.LOGIN = "https://linkedmatrix.resourceinn.com/api/v1/oauth/webLogin"
+        self.CHECKIN = "https://linkedmatrix.resourceinn.com/api/v1/directives/markAttendance"
+        self.access_token = ""
+        self.cookies = {}
 
     def login(self):
         headers = {
@@ -32,14 +30,13 @@ class CheckInAPI:
             "password": self.password
         }
 
-        res = requests.post(self.login_url, headers=headers, data=data)
-        logger.info(f"Login for {self.username}: {res.status_code}")
+        res = requests.post(self.LOGIN, headers=headers, data=data, timeout=10)
+        logger.info("Login for %s: %d", self.username, res.status_code)
         if res.status_code != 200:
-            raise Exception("Login failed")
+            raise RuntimeError("Login failed")
+
         self.access_token = res.json().get("data").get("access_token")
         self.cookies = res.cookies.get_dict()  # {'laravel_session': 'P1AqDqbULorKaKUzq54i1vkLYp4ba1tGJsPxZzl7'}
-        # self.employment_id = res.json().getx("data").get("user").get("employment_id")
-        # <RequestsCookieJar[Cookie(version=0, name='laravel_session', value='P1AqDqbULorKaKUzq54i1vkLYp4ba1tGJsPxZzl7', port=None, port_specified=False, domain='linkedmatrix.resourceinn.com', domain_specified=False, domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=1731418480, discard=False, comment=None, comment_url=None, rest={'httponly': None}, rfc2109=False)]>
 
     def checkin(self):
         self.login()
@@ -71,9 +68,8 @@ Content-Disposition: form-data; name="mark_attendance"
 ------WebKitFormBoundaryLlz6sJ56J5TaAiKJ--
 """
 
-        res = requests.post(self.checkin_url, headers=headers, data=data)
-        logger.info(f"checkin for {self.username}: {res.status_code}")
+        res = requests.post(self.CHECKIN, headers=headers, data=data, timeout=10)
+        logger.info("Check-in for %s: %d", self.username, res.status_code)
         if res.status_code == 200 and 'data' in res.json():
             return "Success"
-        else:
-            return "Failed"
+        return "Failed"

@@ -1,4 +1,5 @@
 import logging
+
 import colorlog
 
 # Create a formatter for the file logs

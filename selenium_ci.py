@@ -71,7 +71,7 @@ def checkin_job(username, passwrd, user_id):
         result = "Success"
         logger.info(f"{username} checked-in successfully")
         return result, driver
-    
+
     logger.info(f"Check-in job started for: {username}")
     result = str
 
@@ -135,13 +135,13 @@ def checkin_job(username, passwrd, user_id):
         if result == "Success":
             if ss:
                 content = f"{user_id} Checked-in successfully"
-                logger.info(f"Screenshot captured for {username}")             
+                logger.info(f"Screenshot captured for {username}")
                 send_discord_message(content, image='checkin.png')
             else:
                 send_discord_message(content)
 
         logger.info("Job completed successfully")
-    except Exception as e:
+    except Exception:
         result = "Failed"
         logger.error(f"An error occurred for {username}: {traceback.format_exc()}")
     finally:
@@ -150,13 +150,14 @@ def checkin_job(username, passwrd, user_id):
         return result
 
 
-def main(result = dict()):
+def main(result):
     usernames = os.environ.get("USERNAMES", "").split(',')
     passwords = os.environ.get("PASSWORDS", "").split(',')
     leave_users = os.environ.get("LEAVE_USERS", "").split(',')
     user_ids = os.environ.get("DISCORD_USER_IDS", "").split(',')
     # emails = os.environ.get("EMAILS", "").split(',')
-    if len(leave_users[0]):print(leave_users)
+    if len(leave_users[0]):
+        print(leave_users)
     if len(usernames) != len(passwords):
         logger.error("The number of emails does not match the number of passwords")
         return
@@ -176,6 +177,3 @@ def main(result = dict()):
 
     logger.info(f"All jobs completed successfully {result}")
     send_discord_message("```python\n"+json.dumps(result, indent=4)+"```")
- 
-if __name__ == "__main__":
-    main()

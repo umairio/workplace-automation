@@ -7,6 +7,8 @@ from email.mime.text import MIMEText
 import yagmail
 from dotenv import load_dotenv
 
+from logger import logger
+
 load_dotenv()
 def send_mail(email, image=None):
     """
@@ -38,7 +40,7 @@ def send_mail(email, image=None):
             contents=template,
             attachments=[image] if image else None
         )
-        
+
         print(f"Success: Email sent to {email}")
 
     except Exception as e:
